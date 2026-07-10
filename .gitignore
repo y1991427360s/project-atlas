@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-electron/
+release/
+release-public/
+output/
+.playwright-cli/
+*.log

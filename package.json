@@ -1,0 +1,65 @@
+{
+  "name": "project-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "本地项目总览与快速导航工具",
+  "main": "dist-electron/electron/main.js",
+  "author": "ys199",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite --host 127.0.0.1",
+    "dev:electron": "wait-on http://127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 npm run build:electron && electron .",
+    "build:renderer": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:renderer && npm run build:electron",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
+    "test": "vitest run",
+    "preview": "vite preview --host 127.0.0.1",
+    "dist": "npm run test && npm run typecheck && npm run build && node scripts/build-portable.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^1.24.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@electron/asar": "^3.4.1",
+    "@types/node": "^24.10.13",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^43.1.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4",
+    "vitest": "^4.1.10",
+    "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "com.ys199.projectatlas",
+    "productName": "项目总览",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "项目总览.exe"
+    }
+  }
+}
