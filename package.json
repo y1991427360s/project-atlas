@@ -6,6 +6,14 @@
   "main": "dist-electron/electron/main.js",
   "author": "ys199",
   "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/y1991427360s/project-atlas.git"
+  },
+  "homepage": "https://github.com/y1991427360s/project-atlas",
+  "bugs": {
+    "url": "https://github.com/y1991427360s/project-atlas/issues"
+  },
   "scripts": {
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
     "dev:renderer": "vite --host 127.0.0.1",
