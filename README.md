@@ -4,7 +4,7 @@
 
 ## 下载使用
 
-从 [GitHub Releases](https://github.com/y1991427360s/project-atlas/releases/latest) 下载 `项目总览.exe` 后直接双击运行，无需安装 Node.js。首次启动后，点击左下角“更换目录”选择自己的项目根目录。程序会自动识别：
+从 [GitHub Releases](https://github.com/y1991427360s/project-atlas/releases/latest) 下载 `Project-Atlas-Windows-x64.exe` 后直接双击运行，无需安装 Node.js。首次启动后，点击左下角“更换目录”选择自己的项目根目录。程序会自动识别：
 
 - `20xx年` 格式的年份文件夹；
 - `01月`、`1月`、`2025年12月` 等月份文件夹；
