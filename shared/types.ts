@@ -44,6 +44,8 @@ export interface AppSettings {
   recent: RecentProject[];
   expandedNodes: string[];
   expandedStateInitialized: boolean;
+  canvasExpandedNodes: string[];
+  canvasExpandedStateInitialized: boolean;
 }
 
 export interface ProjectFlagUpdate {
@@ -53,8 +55,10 @@ export interface ProjectFlagUpdate {
 }
 
 export interface UiStateUpdate {
-  expandedNodes: string[];
-  expandedStateInitialized: boolean;
+  expandedNodes?: string[];
+  expandedStateInitialized?: boolean;
+  canvasExpandedNodes?: string[];
+  canvasExpandedStateInitialized?: boolean;
 }
 
 export interface ActionResult {

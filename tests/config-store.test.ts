@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -24,11 +24,21 @@ describe('本地配置', () => {
 
     await store.updateFlags({ relativePath: project, favorite: true });
     await store.addRecent(project);
-    await store.updateUiState({ expandedNodes: ['year:2026', 'month:2026:1'], expandedStateInitialized: true });
+    await store.updateUiState({
+      expandedNodes: ['year:2026', 'month:2026:1'],
+      expandedStateInitialized: true,
+      canvasExpandedNodes: ['canvas:root', 'canvas:year:2026', 'canvas:month:2026:1'],
+      canvasExpandedStateInitialized: true,
+    });
 
     expect(store.get().favorites).toEqual([project]);
     expect(store.get().recent[0].relativePath).toBe(project);
     expect(store.get().expandedNodes).toEqual(['year:2026', 'month:2026:1']);
+    expect(store.get().canvasExpandedNodes).toEqual([
+      'canvas:root',
+      'canvas:year:2026',
+      'canvas:month:2026:1',
+    ]);
     expect(JSON.parse(await readFile(file, 'utf8')).version).toBe(1);
   });
 
@@ -50,6 +60,29 @@ describe('本地配置', () => {
       recent: [],
       expandedNodes: [],
       expandedStateInitialized: false,
+      canvasExpandedNodes: [],
+      canvasExpandedStateInitialized: false,
+    });
+  });
+
+  it('兼容没有画布字段的旧配置文件', async () => {
+    const { file } = await temporaryConfig();
+    await writeFile(file, JSON.stringify({
+      version: 1,
+      rootPath: 'E:\\366256',
+      excluded: [],
+      favorites: [],
+      recent: [],
+      expandedNodes: ['year:2026'],
+      expandedStateInitialized: true,
+    }), 'utf8');
+
+    const store = new ConfigStore(file);
+    expect(store.get()).toMatchObject({
+      expandedNodes: ['year:2026'],
+      expandedStateInitialized: true,
+      canvasExpandedNodes: [],
+      canvasExpandedStateInitialized: false,
     });
   });
 });

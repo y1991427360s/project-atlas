@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { access, copyFile, cp, mkdir, rename, rm } from 'node:fs/promises';
+import { access, copyFile, cp, mkdir, readdir, rename, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { createPackage } from '@electron/asar';
 
@@ -15,7 +15,10 @@ if (!releaseDirectory.startsWith(`${root}${path.sep}`)) {
 }
 
 await access(path.join(electronDirectory, 'electron.exe'));
-await rm(releaseDirectory, { recursive: true, force: true });
+await mkdir(releaseDirectory, { recursive: true });
+for (const entry of await readdir(releaseDirectory)) {
+  await rm(path.join(releaseDirectory, entry), { recursive: true, force: true });
+}
 await mkdir(unpackedDirectory, { recursive: true });
 await cp(electronDirectory, unpackedDirectory, { recursive: true, force: true });
 

@@ -90,6 +90,8 @@ let settings: AppSettings = {
     .map((item) => ({ relativePath: item.relativePath, openedAt: item.lastOpenedAt! })),
   expandedNodes: [],
   expandedStateInitialized: false,
+  canvasExpandedNodes: [],
+  canvasExpandedStateInitialized: false,
 };
 
 let projectChanged: ((snapshot: ProjectSnapshot) => void) | null = null;

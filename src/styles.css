@@ -118,6 +118,57 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible {
 .content-scroll::-webkit-scrollbar { width: 10px; }
 .content-scroll::-webkit-scrollbar-thumb { background: #c3c8c3; border: 3px solid transparent; border-radius: 8px; background-clip: padding-box; }
 
+.content-scroll.canvas-host { position: relative; overflow: hidden; }
+.canvas-viewport { position: relative; width: 100%; height: 100%; overflow: hidden; color: var(--ink); background-color: #f1f1ed; background-image: radial-gradient(#c9cec8 1px, transparent 1px); background-size: 22px 22px; cursor: grab; touch-action: none; user-select: none; }
+.canvas-viewport.dragging { cursor: grabbing; }
+.canvas-world { position: absolute; left: 0; top: 0; display: grid; grid-template-columns: 176px 46px auto; align-items: stretch; gap: 13px; min-width: max-content; min-height: max-content; padding: 22px 70px 90px 22px; will-change: transform; }
+.canvas-root-node { align-self: center; min-height: 76px; display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: white; background: var(--teal-dark); border: 1px solid #06483f; border-radius: 8px; box-shadow: 0 10px 25px rgba(29, 55, 49, 0.18); }
+.canvas-root-node > svg { flex: 0 0 auto; color: #a7d8ce; }
+.canvas-root-node strong, .canvas-root-node span { display: block; }
+.canvas-root-node strong { font-size: 17px; }
+.canvas-root-node span { margin-top: 4px; color: #bddbd4; font-size: 11px; }
+.canvas-years, .canvas-months { display: grid; align-content: center; }
+.canvas-years { gap: 34px; }
+.canvas-months { gap: 20px; }
+.canvas-year-branch { display: grid; grid-template-columns: 152px 43px auto; align-items: stretch; gap: 12px; }
+.canvas-month-branch { display: grid; grid-template-columns: 148px 39px auto; align-items: stretch; gap: 10px; }
+.canvas-year-node, .canvas-month-node { align-self: center; width: 100%; color: var(--ink); background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: 7px; box-shadow: 0 5px 16px rgba(40, 52, 48, 0.08); transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease; }
+.canvas-year-node:hover, .canvas-month-node:hover { border-color: #82aaa1; box-shadow: 0 7px 20px rgba(27, 68, 59, 0.12); transform: translateY(-1px); }
+.canvas-year-node { min-height: 76px; display: grid; grid-template-columns: auto auto; align-content: center; justify-content: center; column-gap: 4px; padding: 12px; }
+.canvas-year-node strong { color: #263a35; font: 700 25px/1 Bahnschrift, sans-serif; }
+.canvas-year-node > span { align-self: end; padding-bottom: 2px; color: var(--muted); font-size: 11px; }
+.canvas-year-node b { grid-column: 1 / -1; margin-top: 7px; color: var(--teal); font-size: 11px; font-weight: 600; }
+.canvas-month-node { min-height: 64px; display: flex; align-items: center; gap: 10px; padding: 11px 13px; text-align: left; }
+.canvas-month-node > svg { flex: 0 0 auto; color: var(--teal); }
+.canvas-month-node strong, .canvas-month-node span { display: block; }
+.canvas-month-node strong { font-size: 13px; }
+.canvas-month-node span { margin-top: 4px; color: var(--muted); font-size: 10px; }
+.canvas-brace { position: relative; align-self: stretch; width: 100%; min-height: 70px; padding: 0; color: #71847e; background: transparent; }
+.canvas-brace svg { position: absolute; left: 2px; top: 4px; width: 27px; height: calc(100% - 8px); overflow: visible; }
+.canvas-brace path { fill: none; stroke: currentColor; stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+.canvas-brace span { position: absolute; z-index: 1; left: -7px; top: 50%; width: 22px; height: 22px; display: grid; place-items: center; color: white; background: var(--teal); border: 2px solid #f1f1ed; border-radius: 50%; box-shadow: 0 2px 7px rgba(24, 62, 54, 0.18); transform: translateY(-50%); font: 700 15px/1 Bahnschrift, sans-serif; }
+.canvas-brace.closed { color: #a8b1ad; }
+.canvas-brace.closed span { color: #53635e; background: #dce1dd; border-color: #f1f1ed; }
+.canvas-brace:hover { color: var(--teal); }
+.canvas-brace:hover span { background: var(--teal-dark); }
+.canvas-projects { align-self: center; display: grid; gap: 7px; min-width: 260px; max-width: 340px; }
+.canvas-project-card { min-height: 45px; display: grid; grid-template-columns: 24px minmax(160px, 1fr) 27px; align-items: center; gap: 7px; padding: 7px 7px 7px 10px; color: #2c3936; background: rgba(255, 255, 255, 0.94); border: 1px solid #d2d7d1; border-left: 3px solid #c49041; border-radius: 5px; box-shadow: 0 3px 10px rgba(40, 52, 48, 0.07); cursor: default; transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease; }
+.canvas-project-card:hover { background: white; border-color: #aebbb5; transform: translateX(2px); }
+.canvas-project-card.selected { background: #e9f4f0; border-color: #72aa9d; border-left-color: var(--teal); box-shadow: 0 0 0 2px rgba(10, 112, 99, 0.1); }
+.canvas-project-card > svg { color: #be8734; }
+.canvas-project-card > span { overflow-wrap: anywhere; font-size: 12px; line-height: 1.45; }
+.canvas-project-card > button { width: 27px; height: 27px; display: grid; place-items: center; padding: 0; color: #929c98; background: transparent; border-radius: 4px; opacity: 0; }
+.canvas-project-card:hover > button, .canvas-project-card.selected > button, .canvas-project-card:focus-within > button { opacity: 1; }
+.canvas-project-card > button:hover { color: var(--amber); background: var(--amber-soft); }
+.canvas-project-card > button.active { color: var(--amber); opacity: 1; }
+.canvas-drag-hint, .canvas-legend { position: absolute; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 7px 10px; color: #65716d; background: rgba(250, 250, 247, 0.9); border: 1px solid rgba(198, 203, 197, 0.9); border-radius: 5px; box-shadow: 0 3px 12px rgba(44, 56, 52, 0.07); font-size: 10px; pointer-events: none; backdrop-filter: blur(4px); }
+.canvas-drag-hint { left: 12px; top: 12px; }
+.canvas-legend { right: 12px; bottom: 12px; }
+.canvas-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); background-image: radial-gradient(#c9cec8 1px, transparent 1px); background-size: 22px 22px; }
+.canvas-empty > svg { margin-bottom: 13px; color: var(--teal); }
+.canvas-empty strong { color: #3a4643; font-size: 15px; }
+.canvas-empty span { margin-top: 7px; font-size: 12px; }
+
 .tree-view { padding: 8px 22px 42px; animation: settle 0.32s ease-out both; }
 .year-section { padding-top: 8px; }
 .year-heading { width: 100%; height: 58px; display: flex; align-items: center; gap: 7px; padding: 0 4px; color: var(--ink); background: transparent; text-align: left; }

@@ -15,11 +15,13 @@ import {
   FolderTree,
   HardDrive,
   History,
+  LocateFixed,
   Minus,
   RefreshCw,
   RotateCcw,
   Search,
   Settings2,
+  Share2,
   Square,
   Star,
   X,
@@ -34,8 +36,9 @@ import {
 } from 'react';
 import type { AppSettings, ProjectRecord, ProjectSnapshot } from '../shared/types';
 import { isDesktop, projectApi } from './api';
+import CanvasView, { allCanvasNodeIds } from './CanvasView';
 
-type ViewName = 'directory' | 'stats' | 'favorites' | 'recent' | 'excluded';
+type ViewName = 'directory' | 'canvas' | 'stats' | 'favorites' | 'recent' | 'excluded';
 type ToastState = { message: string; tone: 'success' | 'error' | 'info' } | null;
 
 interface ProjectGroup {
@@ -54,6 +57,7 @@ interface YearGroup {
 
 const VIEW_LABELS: Record<ViewName, string> = {
   directory: '项目目录',
+  canvas: '项目画布',
   stats: '统计概览',
   favorites: '收藏项目',
   recent: '最近打开',
@@ -192,6 +196,7 @@ interface SidebarProps {
 function Sidebar(props: SidebarProps) {
   const navItems: Array<{ view: ViewName; icon: ReactNode; count?: number }> = [
     { view: 'directory', icon: <FolderTree size={18} />, count: props.activeCount },
+    { view: 'canvas', icon: <Share2 size={18} /> },
     { view: 'stats', icon: <BarChart3 size={18} /> },
   ];
   const quickItems: Array<{ view: ViewName; icon: ReactNode; count: number }> = [
@@ -530,6 +535,8 @@ export default function App() {
   const [view, setView] = useState<ViewName>('directory');
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [canvasExpanded, setCanvasExpanded] = useState<Set<string>>(new Set());
+  const [canvasResetKey, setCanvasResetKey] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [maximized, setMaximized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -554,13 +561,23 @@ export default function App() {
   const allGroups = useMemo(() => buildGroups(activeProjects), [activeProjects]);
 
   const initializeExpanded = useCallback(async (nextSnapshot: ProjectSnapshot, settings: AppSettings) => {
-    if (settings.expandedStateInitialized) {
-      setExpanded(new Set(settings.expandedNodes));
-      return;
+    const groups = buildGroups(nextSnapshot.projects.filter((project) => !project.excluded));
+    const directoryIds = settings.expandedStateInitialized
+      ? settings.expandedNodes
+      : allNodeIds(groups);
+    const canvasIds = settings.canvasExpandedStateInitialized
+      ? settings.canvasExpandedNodes
+      : allCanvasNodeIds(groups);
+    setExpanded(new Set(directoryIds));
+    setCanvasExpanded(new Set(canvasIds));
+    if (!settings.expandedStateInitialized || !settings.canvasExpandedStateInitialized) {
+      await projectApi.updateUiState({
+        expandedNodes: directoryIds,
+        expandedStateInitialized: true,
+        canvasExpandedNodes: canvasIds,
+        canvasExpandedStateInitialized: true,
+      });
     }
-    const ids = allNodeIds(buildGroups(nextSnapshot.projects.filter((project) => !project.excluded)));
-    setExpanded(new Set(ids));
-    await projectApi.updateUiState({ expandedNodes: ids, expandedStateInitialized: true });
   }, []);
 
   useEffect(() => {
@@ -608,11 +625,26 @@ export default function App() {
     void projectApi.updateUiState({ expandedNodes: [...next], expandedStateInitialized: true });
   }, []);
 
+  const persistCanvasExpanded = useCallback((next: Set<string>) => {
+    setCanvasExpanded(next);
+    void projectApi.updateUiState({
+      canvasExpandedNodes: [...next],
+      canvasExpandedStateInitialized: true,
+    });
+  }, []);
+
   const toggleNode = (id: string) => {
     const next = new Set(expanded);
     if (next.has(id)) next.delete(id);
     else next.add(id);
     persistExpanded(next);
+  };
+
+  const toggleCanvasNode = (id: string) => {
+    const next = new Set(canvasExpanded);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    persistCanvasExpanded(next);
   };
 
   const refresh = async () => {
@@ -725,6 +757,13 @@ export default function App() {
                   <button title="全部收起" aria-label="全部收起" onClick={() => persistExpanded(new Set())}><ChevronsDownUp size={17} /></button>
                 </>
               )}
+              {view === 'canvas' && (
+                <>
+                  <button title="画布全部展开" aria-label="画布全部展开" onClick={() => persistCanvasExpanded(new Set(allCanvasNodeIds(allGroups)))}><ChevronsUpDown size={17} /></button>
+                  <button title="画布全部收起" aria-label="画布全部收起" onClick={() => persistCanvasExpanded(new Set())}><ChevronsDownUp size={17} /></button>
+                  <button title="画布回到起点" aria-label="画布回到起点" onClick={() => setCanvasResetKey((value) => value + 1)}><LocateFixed size={17} /></button>
+                </>
+              )}
               <button className={refreshing ? 'spinning' : ''} title="刷新目录" aria-label="刷新目录" onClick={() => void refresh()}><RefreshCw size={17} /></button>
             </div>
           </header>
@@ -737,7 +776,7 @@ export default function App() {
             </div>
           )}
 
-          <div className="content-scroll">
+          <div className={`content-scroll ${view === 'canvas' ? 'canvas-host' : ''}`}>
             {view === 'directory' && (
               <TreeView
                 groups={visibleGroups}
@@ -749,6 +788,19 @@ export default function App() {
                 onOpen={(project) => void openProject(project)}
                 onFavorite={(project) => void toggleFavorite(project)}
                 onExclude={(project) => void excludeProject(project)}
+              />
+            )}
+            {view === 'canvas' && (
+              <CanvasView
+                groups={visibleGroups}
+                query={query}
+                expanded={canvasExpanded}
+                selectedId={selectedId}
+                resetKey={canvasResetKey}
+                onToggle={toggleCanvasNode}
+                onSelect={(project) => setSelectedId(project.id)}
+                onOpen={(project) => void openProject(project)}
+                onFavorite={(project) => void toggleFavorite(project)}
               />
             )}
             {view === 'stats' && <StatsView projects={activeProjects} excludedCount={excludedProjects.length} />}

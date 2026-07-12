@@ -19,6 +19,8 @@ function defaults(rootPath = FALLBACK_ROOT): AppSettings {
     recent: [],
     expandedNodes: [],
     expandedStateInitialized: false,
+    canvasExpandedNodes: [],
+    canvasExpandedStateInitialized: false,
   };
 }
 
@@ -50,6 +52,8 @@ function sanitize(value: unknown, defaultRoot: string): AppSettings {
     recent: sanitizeRecent(raw.recent),
     expandedNodes: stringArray(raw.expandedNodes),
     expandedStateInitialized: raw.expandedStateInitialized === true,
+    canvasExpandedNodes: stringArray(raw.canvasExpandedNodes),
+    canvasExpandedStateInitialized: raw.canvasExpandedStateInitialized === true,
   };
 }
 
@@ -139,8 +143,18 @@ export class ConfigStore {
   }
 
   async updateUiState(update: UiStateUpdate): Promise<AppSettings> {
-    this.settings.expandedNodes = [...new Set(update.expandedNodes)];
-    this.settings.expandedStateInitialized = update.expandedStateInitialized;
+    if (update.expandedNodes) {
+      this.settings.expandedNodes = [...new Set(update.expandedNodes)];
+    }
+    if (typeof update.expandedStateInitialized === 'boolean') {
+      this.settings.expandedStateInitialized = update.expandedStateInitialized;
+    }
+    if (update.canvasExpandedNodes) {
+      this.settings.canvasExpandedNodes = [...new Set(update.canvasExpandedNodes)];
+    }
+    if (typeof update.canvasExpandedStateInitialized === 'boolean') {
+      this.settings.canvasExpandedStateInitialized = update.canvasExpandedStateInitialized;
+    }
     await this.persist();
     return this.get();
   }
